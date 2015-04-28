@@ -8,7 +8,7 @@ y = dataset(:, 1);
 M = [1 2 4 8];
 for m=M
     [~,~,~,~,W] = PCA(dataset', [], m);
-    X_pca = (W * dataset')';
+    X_pca = [y (W * dataset')'];
     
     save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
