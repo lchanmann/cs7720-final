@@ -5,10 +5,10 @@ dataset = load('leaf.csv');
 y = dataset(:, 1);
 
 % PCA dimension reduction
-M = [8];
+M = [1 2 4 8];
 for m=M
     [~,~,~,~,W] = PCA(dataset', [], m);
     X_pca = (W * dataset')';
     
-    save('dataset_pca.mat', 'X_pca');
+    save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
