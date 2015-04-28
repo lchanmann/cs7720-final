@@ -15,7 +15,7 @@ function [patterns, targets, UW, m, W] = PCA(patterns, targets, dimension)
 
 [r,c] = size(patterns);
 
-if (r < dimension),
+if (r < dimension)
    disp('Required dimension is larger than the data dimension.')
    disp(['Will use dimension ' num2str(r)])
    dimension = r;
