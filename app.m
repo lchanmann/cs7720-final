@@ -6,8 +6,11 @@ dataset = load('leaf.csv');
 y = dataset(:, 1);
 X = dataset(:, 3:end);
 
+X_full = [y X];
+save('dataset_full', 'X_full');
+
 % PCA dimension reduction
-M = [1 2 4 8];
+M = [1 2 4 8 12];
 for m=M
     [~,~,~,~,W] = PCA(X', [], m);
     X_pca = [y (W * X')'];
