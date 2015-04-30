@@ -10,7 +10,7 @@ save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
-M = [1 2 4 8 12];
+M = [1 2 4 5 6];
 for m=M
     [~,~,~,~,W] = PCA(X', [], m);
     X_pca = [y (W * X')'];
