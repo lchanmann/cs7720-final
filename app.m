@@ -40,9 +40,9 @@ for k = K'
 end
 hold off
 
-%% Neural Nets with 6-D projected data
+%% Neural Nets with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_6.mat'
+load 'dataset_pca_5.mat'
 
 train_x = X_pca(:, 2:end);
 y = X_pca(:, 1);
@@ -68,9 +68,9 @@ opts.batchsize = 10;
 [er, bad] = nntest(nn, test_x, train_y);
 display(er);
 
-%% Deep Belief Network with 6-D projected data
+%% Deep Belief Network with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_6.mat'
+load 'dataset_pca_5.mat'
 
 train_x = X_pca(:, 2:end);
 y = X_pca(:, 1);
@@ -79,7 +79,8 @@ C = unique(y)';
 train_y = (y * (1 ./ C) == ones(r, length(C)));
 H = 6; %round( (d + length(C)) * 2/3 );
 
-% normalize
+% normalize the data to [0..1]
+% as it is required
 x_min = min(train_x);
 x_max = max(train_x);
 train_x = (train_x - ones(r, 1) * x_min) ./ (ones(r, 1) * (x_max-x_min));
