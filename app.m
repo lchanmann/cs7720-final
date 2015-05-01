@@ -190,7 +190,7 @@ test_y = test(:, 1);
 test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
 dbn.sizes = [H H]; % hidden nodes of hidden layers
-opts.numepochs = 20;
+opts.numepochs = 8;
 opts.batchsize = 1;
 opts.momentum  = 0;
 opts.alpha     = 1; % Learning rate
@@ -204,9 +204,9 @@ nn.learningRate = 1; % Should decrease over time.
 nn.scaling_learningRate = 0.999;
 
 %train nn
-opts.numepochs = 12;
-opts.batchsize = 1;
-nn = nntrain(nn, train_x, train_y, opts);
+% opts.numepochs = 18;
+% opts.batchsize = 1;
+[nn, L] = nntrain(nn, train_x, train_y, opts);
 [er, bad] = nntest(nn, test_x, test_y);
 
 display(er);
