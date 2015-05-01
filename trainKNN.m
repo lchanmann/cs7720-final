@@ -12,15 +12,16 @@ function learned_test_targets = trainKNN( train_patterns, train_targets, test_pa
 % Outputs
 %	learned_test_targets	- Predicted targets
 %
-    assert( size(test_patterns,1) == size(test_targets,1) );
-    old_test_targets     = zeros(size(test_patterns,1));
-    learned_test_targets = ones(size(test_patterns,1));
-    while(learned_test_targets ~= old_test_targets)
+    assert( size(train_patterns,2) == size(train_targets,2) );
+    assert( nargin < 5 || size(test_patterns,2) == size(test_targets,2) );
+    old_test_targets     = zeros(1,size(test_patterns,2));
+    learned_test_targets = ones(1,size(test_patterns,2));
+    while(~all(learned_test_targets == old_test_targets))
         old_test_targets = learned_test_targets;
         learned_test_targets = Nearest_Neighbor( train_patterns, train_targets, test_patterns, Knn );
         %user feedback
         if nargin >=5
-            error = mean(abs(test_targets - learned_test_targets))
+            error = mean(abs(test_targets - learned_test_targets),2)
         end
     end
 end
