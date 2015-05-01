@@ -2,25 +2,43 @@ startup
 
 % Train and test data separation
 y = dataset(:, 1);
-X = dataset(:, 3:end);
+X = dataset(:, 2:end);
+
+C = unique(y)';
+train_X = [];
+test_X = [];
+train_y = [];
+test_y = [];
+for c = C
+    X_given_c = X(y == c, :);
+    train_X = cat(1, train_X, X_given_c(1:end-3, :));
+    test_X = cat(1, test_X, X_given_c(end-2:end, :));
+    
+    y_given_c = y(y == c);
+    train_y = cat(1, train_y, y_given_c(1:end-3, :));
+    test_y = cat(1, test_y, y_given_c(end-2:end, :));
+end
 
 % Export full dataset
-X_full = [y X];
-save('dataset_full', 'X_full');
+% X_full = [y X];
+% save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
 M = [1 2 4 5 6];
 for m=M
-    [~,~,~,~,W] = PCA(X', [], m);
-    X_pca = [y (W * X')'];
+    [~,~,~,~,W] = PCA(train_X', [], m);
+    X_pca_train = [train_y (W * train_X')'];
+    X_pca = [test_y (W * test_X')'];
     
+    save(['dataset_pca_train_', num2str(m), '.mat'], 'X_pca_train');
     save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
 
 % MultipleDiscriminantAnalysis from classification toolbox
 % will yield error since the number of classes is larger than
 % the number of input dimension
+%
 %[~,~,W] = MultipleDiscriminantAnalysis(X', y');
 
 %% Plot 2D projected dataset
@@ -47,16 +65,20 @@ hold off
 
 %% Experiment with Neural Nets with 5-D projected data
 clc; clear all; close all;
+load 'dataset_pca_train_5.mat'
 load 'dataset_pca_5.mat'
 
-train_x = X_pca(:, 2:end);
-y = X_pca(:, 1);
+train_x = X_pca_train(:, 2:end);
+train_y = X_pca_train(:, 1);
 [r, d] = size(train_x);
-C = unique(y)';
-train_y = (y * (1 ./ C) == ones(r, length(C)));
+C = unique(train_y)';
+train_y = (train_y * (1 ./ C) == ones(r, length(C)));
 H = round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
 
-test_x = train_x;
+test_x = X_pca(:, 2:end);
+test_y = X_pca(:, 1);
+[r, ~] = size(test_x);
+test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
 % normalize
 [train_x, mu, sigma] = zscore(train_x);
@@ -64,25 +86,27 @@ test_x = normalize(test_x, mu, sigma);
 
 nn = nnsetup([d H length(C)]); % nn structure [input, hidden, ..., hidden, output]
 nn.activation_function = 'sigm';
-% nn.learningRate = 1; % Should decrease over time.
+nn.learningRate = 1; % Should decrease over time.
+nn.scaling_learningRate = 0.999;
 
-opts.numepochs = 300;
-opts.batchsize = 10; 
+opts.numepochs = 110;
+opts.batchsize = 1; 
 [nn, L] = nntrain(nn, train_x, train_y, opts);
 
-[er, bad] = nntest(nn, test_x, train_y);
+[er, bad] = nntest(nn, test_x, test_y);
 display(er);
 
 %% Experiment with Deep Belief Network with 5-D projected data
 clc; clear all; close all;
+load 'dataset_pca_train_5.mat'
 load 'dataset_pca_5.mat'
 
-train_x = X_pca(:, 2:end);
-y = X_pca(:, 1);
+train_x = X_pca_train(:, 2:end);
+train_y = X_pca_train(:, 1);
 [r, d] = size(train_x);
-C = unique(y)';
-train_y = (y * (1 ./ C) == ones(r, length(C)));
-H = 6; %round( (d + length(C)) * 2/3 );
+C = unique(train_y)';
+train_y = (train_y * (1 ./ C) == ones(r, length(C)));
+H = 6; %round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
 
 % normalize the data to [0..1]
 % as it is required
@@ -90,11 +114,14 @@ x_min = min(train_x);
 x_max = max(train_x);
 train_x = (train_x - ones(r, 1) * x_min) ./ (ones(r, 1) * (x_max-x_min));
 
-test_x = train_x;
+test_x = X_pca(:, 2:end);
+test_y = X_pca(:, 1);
+[r, ~] = size(test_x);
+test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
 dbn.sizes = [H H]; % hidden nodes of hidden layers
-opts.numepochs = 10;
-opts.batchsize = 10;
+opts.numepochs = 20;
+opts.batchsize = 1;
 opts.momentum  = 0;
 opts.alpha     = 1; % Learning rate
 dbn = dbnsetup(dbn, train_x, opts);
@@ -103,11 +130,13 @@ dbn = dbntrain(dbn, train_x, opts);
 %%unfold dbn to nn
 nn = dbnunfoldtonn(dbn, length(C));
 nn.activation_function = 'sigm';
+nn.learningRate = 1; % Should decrease over time.
+nn.scaling_learningRate = 0.999;
 
 %train nn
-opts.numepochs = 10;
-opts.batchsize = 10;
+opts.numepochs = 12;
+opts.batchsize = 1;
 nn = nntrain(nn, train_x, train_y, opts);
-[er, bad] = nntest(nn, test_x, train_y);
+[er, bad] = nntest(nn, test_x, test_y);
 
 display(er);
