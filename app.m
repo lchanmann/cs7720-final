@@ -33,7 +33,7 @@ markers = '.ox+*sdv^<>pd';
 for k = K'
     X1 = x1(y == k);
     X2 = x2(y == k);
-    index = int8(1 + (length(markers)-1) * rand);
+    index = fix(1 + (length(markers)-1) * rand);
     marker = markers(index);
     
     scatter(X1, X2, marker); hold on
