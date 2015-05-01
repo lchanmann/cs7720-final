@@ -10,7 +10,7 @@ X = dataset(:, 3:end);
 % [patterns, targets, pattern_numbers] = Exhaustive_Feature_Selection(X', y', '[2,''LS'',[]]');
 N_feature = [2 3 4 5 6];
 for n = N_feature
-    X_new = Sequential_Feature_Selection(X', y', ['[''Forward'',', num2str(n) , ',''LS'',[]]'])';
+    X_new = [y Sequential_Feature_Selection(X', y', ['[''Forward'',', num2str(n) , ',''LS'',[]]'])'];
     save(['dataset_', num2str(n), '_features',  '.mat'], 'X_new');
 end
 
@@ -40,6 +40,28 @@ end
 % the number of input dimension
 %
 %[~,~,W] = MultipleDiscriminantAnalysis(X', y');
+
+%% Plot 2D selected feature
+clc; clear all; close all;
+load 'dataset_2_features.mat';
+
+y = X_new(:, 1);
+x1 = X_new(:, 2);
+x2 = X_new(:, 3);
+
+figure;
+K = unique(y);
+markers = '.ox+*sdv^<>pd';
+
+for k = K'
+    X1 = x1(y == k);
+    X2 = x2(y == k);
+    index = fix(1 + (length(markers)-1) * rand);
+    marker = markers(index);
+    
+    scatter(X1, X2, marker); hold on
+end
+hold off
 
 %% Plot 2D projected dataset
 clc; clear all; close all;
