@@ -254,12 +254,10 @@ load 'dataset_5_features.mat'
 
 X = X_new(:, 2:end);
 y = X_new(:, 1);
-[train, test] = data_partition(X, y);
+[train, ~] = data_partition(X, y);
 
 train_x = train(:, 2:end);
 train_y = train(:, 1);
-test_x = test(:, 2:end);
-test_y = test(:, 1);
 
 [~, d] = size(X);
 K = unique(y);
