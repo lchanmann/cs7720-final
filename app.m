@@ -246,3 +246,30 @@ opts.batchsize = 1;
 
 [er, bad] = nntest(nn, test_x, test_y);
 display(er);
+
+%% Experiment with Bayesian parameter estimation with
+%  5 features dataset
+clc; clear all; close all;
+load 'dataset_5_features.mat'
+
+X = X_new(:, 2:end);
+y = X_new(:, 1);
+[train, test] = data_partition(X, y);
+
+train_x = train(:, 2:end);
+train_y = train(:, 1);
+test_x = test(:, 2:end);
+test_y = test(:, 1);
+
+[~, d] = size(X);
+K = unique(y);
+Sigma = zeros(length(K), d, d); % Covariance for each class
+for i = 1:length(K)
+    X_given_y = train_x(train_y == K(i),:);
+    [~, Sigma(i,:,:)] = mle(X_given_y);
+end
+
+[mu, Sigma] = Bayesian_parameter_est(train_x', train_y', Sigma);
+
+display(mu);
+display(Sigma);
