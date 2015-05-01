@@ -18,6 +18,11 @@ for m=M
     save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
 
+% MultipleDiscriminantAnalysis from classification toolbox
+% will yield error since the number of classes is larger than
+% the number of input dimension
+%[~,~,W] = MultipleDiscriminantAnalysis(X', y');
+
 %% Plot 2D projected dataset
 clc; clear all; close all;
 load 'dataset_pca_2.mat';
@@ -40,7 +45,7 @@ for k = K'
 end
 hold off
 
-%% Neural Nets with 5-D projected data
+%% Experiment with Neural Nets with 5-D projected data
 clc; clear all; close all;
 load 'dataset_pca_5.mat'
 
@@ -68,7 +73,7 @@ opts.batchsize = 10;
 [er, bad] = nntest(nn, test_x, train_y);
 display(er);
 
-%% Deep Belief Network with 5-D projected data
+%% Experiment with Deep Belief Network with 5-D projected data
 clc; clear all; close all;
 load 'dataset_pca_5.mat'
 
