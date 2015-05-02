@@ -92,11 +92,10 @@ hold off
 
 %% Experiment with Neural Nets with 5-D projected data
 clc; clear all; close all;
-% load 'dataset_pca_train_5.mat'
-load 'dataset_pca_all_5.mat'
+load 'dataset_pca_5.mat'
 
-X = X_pca_all(:, 2:end);
-y = X_pca_all(:, 1);
+X = X_pca(:, 2:end);
+y = X_pca(:, 1);
 
 [train, test] = data_partition(X, y);
 
@@ -130,11 +129,15 @@ display(er);
 
 %% Experiment with Deep Belief Network with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_train_5.mat'
 load 'dataset_pca_5.mat'
 
-train_x = X_pca_train(:, 2:end);
-train_y = X_pca_train(:, 1);
+X = X_pca(:, 2:end);
+y = X_pca(:, 1);
+
+[train, test] = data_partition(X, y);
+
+train_x = train(:, 2:end);
+train_y = train(:, 1);
 [r, d] = size(train_x);
 C = unique(train_y)';
 train_y = (train_y * (1 ./ C) == ones(r, length(C)));
@@ -146,8 +149,8 @@ x_min = min(train_x);
 x_max = max(train_x);
 train_x = (train_x - ones(r, 1) * x_min) ./ (ones(r, 1) * (x_max-x_min));
 
-test_x = X_pca(:, 2:end);
-test_y = X_pca(:, 1);
+test_x = test(:, 2:end);
+test_y = test(:, 1);
 [r, ~] = size(test_x);
 test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
