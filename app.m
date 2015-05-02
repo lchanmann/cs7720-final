@@ -18,22 +18,16 @@ save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
-[train, test] = data_partition(X, y);
-M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
-train_X = train(:, 2:end);
-train_y = train(:, 1);
-test_X = test(:, 2:end);
-test_y = test(:, 1);
 
+[train, ~] = data_partition(X, y);
+train_X = train(:, 2:end);
+
+M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 for m=M
     [~,~,~,~,W] = PCA(train_X', [], m);
-    X_pca_train = [train_y (W * train_X')'];
-    X_pca_test = [test_y (W * test_X')'];
-    X_pca_all = [y (W * X')'];
+    X_pca = [y (W * X')'];
     
-    save(['dataset_pca_train_', num2str(m), '.mat'], 'X_pca_train');
-    save(['dataset_pca_test', num2str(m), '.mat'], 'X_pca_test');
-    save(['dataset_pca_all_', num2str(m), '.mat'], 'X_pca_all');
+    save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
 
 % MultipleDiscriminantAnalysis from classification toolbox
@@ -46,9 +40,14 @@ end
 clc; clear all; close all;
 load 'dataset_2_features.mat';
 
+X = X_new(:, 2:end);
 y = X_new(:, 1);
-x1 = X_new(:, 2);
-x2 = X_new(:, 3);
+
+[~, test] = data_partition(X, y);
+
+y = test(:, 1);
+x1 = test(:, 2);
+x2 = test(:, 3);
 
 figure;
 K = unique(y);
