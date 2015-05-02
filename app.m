@@ -36,7 +36,7 @@ end
 %
 %[~,~,W] = MultipleDiscriminantAnalysis(X', y');
 
-%% Plot 2D selected feature
+%% Plot 2D selected feature test dataset
 clc; clear all; close all;
 load 'dataset_2_features.mat';
 
@@ -63,13 +63,18 @@ for k = K'
 end
 hold off
 
-%% Plot 2D projected dataset
+%% Plot 2D projected test dataset
 clc; clear all; close all;
 load 'dataset_pca_2.mat';
 
+X = X_pca(:, 2:end);
 y = X_pca(:, 1);
-x1 = X_pca(:, 2);
-x2 = X_pca(:, 3);
+
+[~, test] = data_partition(X, y);
+
+y = test(:, 1);
+x1 = test(:, 2);
+x2 = test(:, 3);
 
 figure;
 K = unique(y);
