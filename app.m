@@ -241,7 +241,8 @@ nn.learningRate = 1; % Should decrease over time.
 nn.scaling_learningRate = 0.999;
 
 opts.numepochs = 110;
-opts.batchsize = 1; 
+opts.batchsize = 1; % length(train_x)/59;
+% opts.momentum  = 0.2;
 [nn, L] = nntrain(nn, train_x, train_y, opts);
 
 [er, bad] = nntest(nn, test_x, test_y);
