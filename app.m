@@ -19,7 +19,6 @@ save('dataset_full', 'X_full');
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
 [train, test] = data_partition(X, y);
-%%
 M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 train_X = train(:, 2:end);
 train_y = train(:, 1);
@@ -89,18 +88,23 @@ hold off
 
 %% Experiment with Neural Nets with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_train_5.mat'
-load 'dataset_pca_5.mat'
+% load 'dataset_pca_train_5.mat'
+load 'dataset_pca_all_5.mat'
 
-train_x = X_pca_train(:, 2:end);
-train_y = X_pca_train(:, 1);
+X = X_pca_all(:, 2:end);
+y = X_pca_all(:, 1);
+
+[train, test] = data_partition(X, y);
+
+train_x = train(:, 2:end);
+train_y = train(:, 1);
 [r, d] = size(train_x);
 C = unique(train_y)';
 train_y = (train_y * (1 ./ C) == ones(r, length(C)));
 H = 6;%round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
 
-test_x = X_pca(:, 2:end);
-test_y = X_pca(:, 1);
+test_x = test(:, 2:end);
+test_y = test(:, 1);
 [r, ~] = size(test_x);
 test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
