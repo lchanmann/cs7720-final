@@ -8,7 +8,7 @@ X = dataset(:, 3:end);
 
 % Feature selection
 % [patterns, targets, pattern_numbers] = Exhaustive_Feature_Selection(X', y', '[2,''LS'',[]]');
-N_feature = [2 3 4 5 6];
+N_feature = [2 3 4 5 6 7 8 9 10 11 12 13];
 for n = N_feature
     X_new = [y Sequential_Feature_Selection(X', y', ['[''Forward'',', num2str(n) , ',''LS'',[]]'])'];
     save(['dataset_', num2str(n), '_features',  '.mat'], 'X_new');
@@ -20,7 +20,7 @@ save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
-M = [1 2 4 5 6];
+M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 train_X = train(:, 2:end);
 train_y = train(:, 1);
 test_X = test(:, 2:end);
