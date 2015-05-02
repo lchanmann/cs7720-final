@@ -4,8 +4,6 @@ startup
 y = dataset(:, 1);
 X = dataset(:, 3:end);
 
-[train, test] = data_partition(X, y);
-
 % Feature selection
 % [patterns, targets, pattern_numbers] = Exhaustive_Feature_Selection(X', y', '[2,''LS'',[]]');
 N_feature = [2 3 4 5 6 7 8 9 10 11 12 13];
@@ -20,6 +18,8 @@ save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
 % chosen dimensions: [1, 2, 4, 8, 12]
+[train, test] = data_partition(X, y);
+%%
 M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 train_X = train(:, 2:end);
 train_y = train(:, 1);
@@ -29,10 +29,12 @@ test_y = test(:, 1);
 for m=M
     [~,~,~,~,W] = PCA(train_X', [], m);
     X_pca_train = [train_y (W * train_X')'];
-    X_pca = [test_y (W * test_X')'];
+    X_pca_test = [test_y (W * test_X')'];
+    X_pca_all = [y (W * X')'];
     
     save(['dataset_pca_train_', num2str(m), '.mat'], 'X_pca_train');
-    save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
+    save(['dataset_pca_test', num2str(m), '.mat'], 'X_pca_test');
+    save(['dataset_pca_all_', num2str(m), '.mat'], 'X_pca_all');
 end
 
 % MultipleDiscriminantAnalysis from classification toolbox
