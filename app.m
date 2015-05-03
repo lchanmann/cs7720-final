@@ -244,6 +244,7 @@ display(er);
 %% Experiment with Neural Networks with feature selection dataset
 clc; clear all; close all;
 
+alpha = [0 4 6 1 2 1 2 2 1 1 1 6 1];
 for i = 2:13
     load(['dataset_', num2str(i) ,'_features.mat']);
     
@@ -271,7 +272,7 @@ for i = 2:13
     
     nn = nnsetup([d H length(C)]); % nn structure [input, hidden, ..., hidden, output]
     nn.activation_function = 'tanh_opt';
-    nn.learningRate = 5; % Should decrease over time.
+    nn.learningRate = alpha(i); % Should decrease over time.
     nn.scaling_learningRate = 0.999;
 
     opts.numepochs = 1000;
@@ -279,7 +280,7 @@ for i = 2:13
     [nn, L] = nntrain(nn, train_x, train_y, opts);
 
     [er, bad] = nntest(nn, test_x, test_y);
-    display(['er = ', num2str(er), ' (', num2str(i) ,' features)' sprintf('\t\t[H = %d]', H)]);
+    display(['er = ', num2str(er), ' (', num2str(i) ,' features)' sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
 end
 
 %% Experiment with Bayesian parameter estimation with
