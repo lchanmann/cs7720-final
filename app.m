@@ -52,6 +52,7 @@ x2 = test(:, 3);
 figure;
 K = unique(y);
 markers = '.ox+*sdv^<>pd';
+L = {}; % legend
 
 for k = K'
     X1 = x1(y == k);
@@ -60,8 +61,11 @@ for k = K'
     marker = markers(index);
     
     scatter(X1, X2, marker); hold on
+    L{end+1} = ['C', num2str(k)];
 end
 hold off
+title('2D test dataset (Feature selection)');
+legend(L);
 
 %% Plot 2D projected test dataset
 clc; clear all; close all;
@@ -79,6 +83,7 @@ x2 = test(:, 3);
 figure;
 K = unique(y);
 markers = '.ox+*sdv^<>pd';
+L = {}; % legend
 
 for k = K'
     X1 = x1(y == k);
@@ -87,49 +92,58 @@ for k = K'
     marker = markers(index);
     
     scatter(X1, X2, marker); hold on
+    L{end+1} = ['C', num2str(k)];
 end
 hold off
+title('2D test dataset (PCA)');
+legend(L);
 
 %% Experiment with Neural Nets with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_5.mat'
 
-X = X_pca(:, 2:end);
-y = X_pca(:, 1);
+for i = 1:13
+    load(['dataset_pca_', num2str(i) ,'.mat']);
 
-[train, test] = data_partition(X, y);
+    X = X_pca(:, 2:end);
+    y = X_pca(:, 1);
 
-train_x = train(:, 2:end);
-train_y = train(:, 1);
-[r, d] = size(train_x);
-C = unique(train_y)';
-train_y = (train_y * (1 ./ C) == ones(r, length(C)));
-H = 6;%round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
+    [train, test] = data_partition(X, y);
 
-test_x = test(:, 2:end);
-test_y = test(:, 1);
-[r, ~] = size(test_x);
-test_y = (test_y * (1 ./ C) == ones(r, length(C)));
+    train_x = train(:, 2:end);
+    train_y = train(:, 1);
+    [r, d] = size(train_x);
+    C = unique(train_y)';
+    train_y = (train_y * (1 ./ C) == ones(r, length(C)));
+    H = round(length(train_x) / (length(C) + d) * (length(train_x) / length(X)));
 
-% normalize
-[train_x, mu, sigma] = zscore(train_x);
-test_x = normalize(test_x, mu, sigma);
+    test_x = test(:, 2:end);
+    test_y = test(:, 1);
+    [r, ~] = size(test_x);
+    test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
-nn = nnsetup([d H length(C)]); % nn structure [input, hidden, ..., hidden, output]
-nn.activation_function = 'sigm';
-nn.learningRate = 1; % Should decrease over time.
-nn.scaling_learningRate = 0.999;
+    % normalize
+    [train_x, mu, sigma] = zscore(train_x);
+    test_x = normalize(test_x, mu, sigma);
 
-opts.numepochs = 110;
-opts.batchsize = 1; 
-[nn, L] = nntrain(nn, train_x, train_y, opts);
+    rand('state', 0); % fix the initial weight
 
-[er, bad] = nntest(nn, test_x, test_y);
-display(er);
+    nn = nnsetup([d H length(C)]);          %  nn structure [input, hidden, ..., hidden, output]    
+    nn.activation_function = 'tanh_opt';    %  Activation functions of hidden layers: 'sigm' (sigmoid) or 'tanh_opt' (optimal tanh).
+    nn.learningRate = 4;                    %  Learning rate
+    nn.scaling_learningRate = 0.999;        %  Scaling factor for the learning rate (each epoch)
+    %     nn.momentum = 0.5;
+
+    opts.numepochs = 1000;
+    opts.batchsize = 20; % [10, 14, 20]
+    [nn, L] = nntrain(nn, train_x, train_y, opts);
+
+    [er, bad] = nntest(nn, test_x, test_y);
+    display(['er = ', num2str(er), ' (', num2str(i) ,'d PCA)' sprintf('\t\t[H = %d]', H)]);
+end
 
 %% Experiment with Deep Belief Network with 5-D projected data
 clc; clear all; close all;
-load 'dataset_pca_5.mat'
+load 'dataset_pca_4.mat'
 
 X = X_pca(:, 2:end);
 y = X_pca(:, 1);
@@ -141,36 +155,39 @@ train_y = train(:, 1);
 [r, d] = size(train_x);
 C = unique(train_y)';
 train_y = (train_y * (1 ./ C) == ones(r, length(C)));
-H = 6; %round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
+H = fix(length(train_x) / (length(C) + d)) - 1;
 
 % normalize the data to [0..1]
 % as it is required
-x_min = min(train_x);
-x_max = max(train_x);
-train_x = (train_x - ones(r, 1) * x_min) ./ (ones(r, 1) * (x_max-x_min));
+train_x = softmax(train_x);
+% x_min = min(train_x);
+% x_max = max(train_x);
+% train_x = (train_x - ones(r, 1) * x_min) ./ (ones(r, 1) * (x_max-x_min));
 
 test_x = test(:, 2:end);
 test_y = test(:, 1);
 [r, ~] = size(test_x);
 test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
-dbn.sizes = [H H]; % hidden nodes of hidden layers
-opts.numepochs = 20;
-opts.batchsize = 1;
-opts.momentum  = 0;
-opts.alpha     = 1; % Learning rate
+rand('state', 0);
+dbn.sizes = [H]; % hidden nodes of hidden layers
+opts.numepochs = 200;
+opts.batchsize = 20;
+opts.momentum  = 0.5;
+opts.alpha     = 1;
 dbn = dbnsetup(dbn, train_x, opts);
 dbn = dbntrain(dbn, train_x, opts);
 
 %%unfold dbn to nn
 nn = dbnunfoldtonn(dbn, length(C));
-nn.activation_function = 'sigm';
+nn.activation_function = 'tanh_opt';
+% nn.output = 'softmax';
 nn.learningRate = 1; % Should decrease over time.
 nn.scaling_learningRate = 0.999;
 
 %train nn
-opts.numepochs = 12;
-opts.batchsize = 1;
+opts.numepochs = 100;
+opts.batchsize = 20;
 nn = nntrain(nn, train_x, train_y, opts);
 [er, bad] = nntest(nn, test_x, test_y);
 
