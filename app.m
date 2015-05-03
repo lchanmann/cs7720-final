@@ -98,7 +98,7 @@ hold off
 title('2D test dataset (PCA)');
 legend(L);
 
-%% Experiment with Neural Nets with 5-D projected data
+%% Experiment with Neural Nets with PCA projected data
 clc; clear all; close all;
 
 for i = 1:13
@@ -241,42 +241,46 @@ nn.scaling_learningRate = 0.999;
 
 display(er);
 
-%% Experiment with Neural Networks with original dataset
+%% Experiment with Neural Networks with feature selection dataset
 clc; clear all; close all;
-load 'dataset_full.mat'
 
-X = X_full(:, 2:end);
-y = X_full(:, 1);
-[train, test] = data_partition(X, y);
+for i = 2:13
+    load(['dataset_', num2str(i) ,'_features.mat']);
+    
+    X = X_new(:, 2:end);
+    y = X_new(:, 1);
+    [train, test] = data_partition(X, y);
 
-train_x = train(:, 2:end);
-train_y = train(:, 1);
-[r, d] = size(train_x);
-C = unique(train_y)';
-train_y = (train_y * (1 ./ C) == ones(r, length(C)));
-H = 6; %round( (d + length(C)) * 2/3 ); % the number of nodes in each hidden layers
+    train_x = train(:, 2:end);
+    train_y = train(:, 1);
+    [r, d] = size(train_x);
+    C = unique(train_y)';
+    train_y = (train_y * (1 ./ C) == ones(r, length(C)));
+    H = round(length(train_x) / (length(C) + d) * (length(train_x) / length(X)));
 
-test_x = test(:, 2:end);
-test_y = test(:, 1);
-[r, ~] = size(test_x);
-test_y = (test_y * (1 ./ C) == ones(r, length(C)));
+    test_x = test(:, 2:end);
+    test_y = test(:, 1);
+    [r, ~] = size(test_x);
+    test_y = (test_y * (1 ./ C) == ones(r, length(C)));
 
-% normalize
-[train_x, mu, sigma] = zscore(train_x);
-test_x = normalize(test_x, mu, sigma);
+    % normalize
+    [train_x, mu, sigma] = zscore(train_x);
+    test_x = normalize(test_x, mu, sigma);
 
-nn = nnsetup([d H length(C)]); % nn structure [input, hidden, ..., hidden, output]
-nn.activation_function = 'sigm';
-nn.learningRate = 1; % Should decrease over time.
-nn.scaling_learningRate = 0.999;
+    rand('state', 0); % fix the initial weight
+    
+    nn = nnsetup([d H length(C)]); % nn structure [input, hidden, ..., hidden, output]
+    nn.activation_function = 'tanh_opt';
+    nn.learningRate = 5; % Should decrease over time.
+    nn.scaling_learningRate = 0.999;
 
-opts.numepochs = 110;
-opts.batchsize = 1; % length(train_x)/59;
-% opts.momentum  = 0.2;
-[nn, L] = nntrain(nn, train_x, train_y, opts);
+    opts.numepochs = 1000;
+    opts.batchsize = 20;
+    [nn, L] = nntrain(nn, train_x, train_y, opts);
 
-[er, bad] = nntest(nn, test_x, test_y);
-display(er);
+    [er, bad] = nntest(nn, test_x, test_y);
+    display(['er = ', num2str(er), ' (', num2str(i) ,' features)' sprintf('\t\t[H = %d]', H)]);
+end
 
 %% Experiment with Bayesian parameter estimation with
 %  5 features dataset
