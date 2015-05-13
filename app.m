@@ -28,73 +28,11 @@ for m=M
     save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
 
-% MultipleDiscriminantAnalysis from classification toolbox
-% will yield error since the number of classes is larger than
-% the number of input dimension
-%
-%[~,~,W] = MultipleDiscriminantAnalysis(X', y');
+% Plot 2D selected feature test dataset
+feature_selection_2_plot();
 
-%% Plot 2D selected feature test dataset
-clc; clear all; close all;
-load 'dataset_2_features.mat';
-
-X = X_new(:, 2:end);
-y = X_new(:, 1);
-
-[~, test] = data_partition(X, y);
-
-y = test(:, 1);
-x1 = test(:, 2);
-x2 = test(:, 3);
-
-figure;
-K = unique(y);
-markers = '.ox+*sdv^<>pd';
-L = {}; % legend
-
-for k = K'
-    X1 = x1(y == k);
-    X2 = x2(y == k);
-    index = fix(1 + (length(markers)-1) * rand);
-    marker = markers(index);
-    
-    scatter(X1, X2, marker); hold on
-    L{end+1} = ['C', num2str(k)];
-end
-hold off
-title('2D test dataset (Feature selection)');
-legend(L);
-
-%% Plot 2D projected test dataset
-clc; clear all; close all;
-load 'dataset_pca_2.mat';
-
-X = X_pca(:, 2:end);
-y = X_pca(:, 1);
-
-[~, test] = data_partition(X, y);
-
-y = test(:, 1);
-x1 = test(:, 2);
-x2 = test(:, 3);
-
-figure;
-K = unique(y);
-markers = '.ox+*sdv^<>pd';
-L = {}; % legend
-
-for k = K'
-    X1 = x1(y == k);
-    X2 = x2(y == k);
-    index = fix(1 + (length(markers)-1) * rand);
-    marker = markers(index);
-    
-    scatter(X1, X2, marker); hold on
-    L{end+1} = ['C', num2str(k)];
-end
-hold off
-title('2D test dataset (PCA)');
-legend(L);
+% Plot 2D projected test dataset
+pca_2_plot();
 
 %% Experiment with Neural Nets with PCA projected data
 clc; clear all; close all;
