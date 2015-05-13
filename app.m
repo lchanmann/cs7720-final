@@ -1,6 +1,5 @@
 startup
 
-% Train and test data separation
 y = dataset(:, 1);
 X = dataset(:, 3:end);
 
@@ -17,11 +16,10 @@ X_full = [y X];
 save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction
-% chosen dimensions: [1, 2, 4, 8, 12]
-
 [train, ~] = data_partition(X, y);
 train_X = train(:, 2:end);
 
+% chosen dimensions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 M = [1 2 3 4 5 6 7 8 9 10 11 12 13];
 for m=M
     [~,~,~,~,W] = PCA(train_X', [], m);
@@ -101,6 +99,8 @@ legend(L);
 %% Experiment with Neural Nets with PCA projected data
 clc; clear all; close all;
 
+alpha = [4 2 3 3 2 2 1 2 1 1 1 1 1];
+Err = zeros(1, 13);
 for i = 1:13
     load(['dataset_pca_', num2str(i) ,'.mat']);
 
@@ -129,7 +129,7 @@ for i = 1:13
 
     nn = nnsetup([d H length(C)]);          %  nn structure [input, hidden, ..., hidden, output]    
     nn.activation_function = 'tanh_opt';    %  Activation functions of hidden layers: 'sigm' (sigmoid) or 'tanh_opt' (optimal tanh).
-    nn.learningRate = 4;                    %  Learning rate
+    nn.learningRate = alpha(i);             %  Learning rate
     nn.scaling_learningRate = 0.999;        %  Scaling factor for the learning rate (each epoch)
     %     nn.momentum = 0.5;
 
@@ -138,8 +138,15 @@ for i = 1:13
     [nn, L] = nntrain(nn, train_x, train_y, opts);
 
     [er, bad] = nntest(nn, test_x, test_y);
-    display(['er = ', num2str(er), ' (', num2str(i) ,'d PCA)' sprintf('\t\t[H = %d]', H)]);
+    display(['er = ', num2str(er), ' (', num2str(i) ,'d PCA)' sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
+    Err(i) = er;
 end
+
+figure;
+plot(1:13, Err);
+title('Feed-forward Neural nets with PCA');
+xlabel('Dimensions');
+ylabel('Error');
 
 %% Experiment with Deep Belief Network with 5-D projected data
 clc; clear all; close all;
@@ -245,6 +252,7 @@ display(er);
 clc; clear all; close all;
 
 alpha = [0 4 6 1 2 1 2 2 1 1 1 6 1];
+Err = zeros(1, 13);
 for i = 2:13
     load(['dataset_', num2str(i) ,'_features.mat']);
     
@@ -281,7 +289,15 @@ for i = 2:13
 
     [er, bad] = nntest(nn, test_x, test_y);
     display(['er = ', num2str(er), ' (', num2str(i) ,' features)' sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
+    Err(i) = er;
 end
+
+figure;
+plot(2:13, Err(2:13));
+title('Feed-forward Neural nets with Feature selection');
+xlabel('Dimensions');
+ylabel('Error');
+ylim();
 
 %% Experiment with Bayesian parameter estimation with
 %  5 features dataset
