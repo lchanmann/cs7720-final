@@ -6,7 +6,6 @@ display(' ');
 display('Generating plot (PCA). Press any key to continue...');
 pause();
 
-clc; clear all; close all;
 load 'dataset_pca_2.mat';
 
 X = X_pca(:, 2:end);

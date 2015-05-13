@@ -6,7 +6,6 @@ display(' ');
 display('Generating plot (feature selection). Press any key to continue...');
 pause();
 
-clc; clear all; close all;
 load 'dataset_2_features.mat';
 
 X = X_new(:, 2:end);

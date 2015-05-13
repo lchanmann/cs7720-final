@@ -3,8 +3,7 @@ startup
 y = dataset(:, 1);
 X = dataset(:, 3:end);
 
-% Feature selection
-% [patterns, targets, pattern_numbers] = Exhaustive_Feature_Selection(X', y', '[2,''LS'',[]]');
+% Feature selection ---------------------------
 N_feature = [2 3 4 5 6 7 8 9 10 11 12 13];
 for n = N_feature
     X_new = [y Sequential_Feature_Selection(X', y', ['[''Forward'',', num2str(n) , ',''LS'',[]]'])'];
@@ -15,7 +14,7 @@ X_full = [y X];
 % Export full dataset
 save('dataset_full', 'X_full');
 
-% Export dataset with PCA dimension reduction
+% Export dataset with PCA dimension reduction ---------------------------
 [train, ~] = data_partition(X, y);
 train_X = train(:, 2:end);
 
@@ -28,18 +27,16 @@ for m=M
     save(['dataset_pca_', num2str(m), '.mat'], 'X_pca');
 end
 
-% Plot 2D selected feature test dataset
+% Plot 2D selected feature test dataset ---------------------------
 feature_selection_2_plot();
 
-% Plot 2D projected test dataset
+% Plot 2D projected test dataset ---------------------------
 pca_2_plot();
 
-% Experiment with Neural Nets with PCA and FS projected data
+% Experiment with Neural Nets with PCA and FS projected data ---------------------------
 display(' ');
 display('Run neural networks experiment. Press any key to continue...');
 pause();
-
-clear all; close all;
 
 display('PCA ----------------');
 % alpha <- empirically optimized learning rates
@@ -137,7 +134,7 @@ ylabel('Error');
 legend('PCA', 'Feature Selection');
 ylim();
 
-% Experiment with Bayesian parameter estimation 
+% Experiment with Bayesian parameter estimation ---------------------------
 %  with 5 features dataset
 load 'dataset_5_features.mat'
 
