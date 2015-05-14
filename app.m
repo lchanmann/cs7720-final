@@ -3,6 +3,10 @@ startup
 y = dataset(:, 1);
 X = dataset(:, 3:end);
 
+X_full = [y X];
+% Export full dataset
+save('dataset_full', 'X_full');
+
 [train, ~] = data_partition(X, y);
 train_X = train(:, 2:end);
 train_y = train(:, 1);
@@ -10,13 +14,10 @@ train_y = train(:, 1);
 % Feature selection ---------------------------
 N_feature = [2 3 4 5 6 7 8 9 10 11 12 13];
 for n = N_feature
-    X_new = [train_y Sequential_Feature_Selection(train_X', train_y', ['[''Forward'',', num2str(n) , ',''LS'',[]]'])'];
+    [~, ~, best_features] = Sequential_Feature_Selection(train_X', train_y', ['[''Forward'',', num2str(n) , ',''LS'',[]]']);
+    X_new = [y X(:, best_features)];
     save(['dataset_', num2str(n), '_features',  '.mat'], 'X_new');
 end
-
-X_full = [y X];
-% Export full dataset
-save('dataset_full', 'X_full');
 
 % Export dataset with PCA dimension reduction ---------------------------
 % chosen dimensions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -93,6 +94,7 @@ for i = 2:13
     
     X = X_new(:, 2:end);
     y = X_new(:, 1);
+
     [train, test] = data_partition(X, y);
 
     train_x = train(:, 2:end);
