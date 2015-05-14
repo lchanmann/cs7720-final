@@ -1,4 +1,4 @@
-function plot2( x1, x2, y )
+function plot2( x1, x2, y, plot_title )
 % PLOT2 - draw 2D plot from leaf data
 
 figure;
@@ -16,5 +16,7 @@ for k = K'
     L{end+1} = ['C', num2str(k)];
 end
 hold off
-title('2D test dataset (Feature selection)');
+title(plot_title);
+xlabel('x1');
+ylabel('x2');
 legend(L);

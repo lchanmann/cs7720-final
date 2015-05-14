@@ -17,4 +17,4 @@ y = test(:, 1);
 x1 = test(:, 2);
 x2 = test(:, 3);
 
-plot2(x1, x2, y);
+plot2(x1, x2, y, '2D test dataset (Feature selection)');
