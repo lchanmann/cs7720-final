@@ -14,7 +14,8 @@ train_y = train(:, 1);
 % Feature selection ---------------------------
 N_feature = [2 3 4 5 6 7 8 9 10 11 12 13];
 for n = N_feature
-    [~, ~, best_features] = Sequential_Feature_Selection(train_X', train_y', ['[''Forward'',', num2str(n) , ',''LS'',[]]']);
+    [~, ~, best_features] = Sequential_Feature_Selection(train_X', train_y', ...
+        ['[''Forward'',', num2str(n) , ',''LS'',[]]']);
     X_new = [y X(:, best_features)];
     save(['dataset_', num2str(n), '_features',  '.mat'], 'X_new');
 end
@@ -71,7 +72,7 @@ for i = 1:13
     rand('state', 0); % fix the initial weight
 
     nn = nnsetup([d H length(C)]);          %  nn structure [input, hidden, ..., hidden, output]    
-    nn.activation_function = 'tanh_opt';    %  Activation functions of hidden layers: 'sigm' (sigmoid) or 'tanh_opt' (optimal tanh).
+    nn.activation_function = 'tanh_opt';    %  'sigm' (sigmoid) or 'tanh_opt' (optimal tanh).
     nn.learningRate = alpha(i);             %  Learning rate
     nn.scaling_learningRate = 0.999;        %  Scaling factor for the learning rate (each epoch)
     %     nn.momentum = 0.5;
@@ -81,7 +82,8 @@ for i = 1:13
     [nn, L] = nntrain(nn, train_x, train_y, opts);
 
     [er, bad] = nntest(nn, test_x, test_y);
-    display(['er = ', num2str(er), ' (', num2str(i) ,'d PCA)' sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
+    display(['er = ' num2str(er) ' (', num2str(i) 'd PCA)' ...
+        sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
     Err_pca(i) = er;
 end
 
@@ -125,7 +127,8 @@ for i = 2:13
     [nn, L] = nntrain(nn, train_x, train_y, opts);
 
     [er, bad] = nntest(nn, test_x, test_y);
-    display(['er = ', num2str(er), ' (', num2str(i) ,' features)' sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
+    display(['er = ' num2str(er) ' (' num2str(i) ' features)' ...
+        sprintf('\t\t[H=%d, alpha=%d]', H, alpha(i))]);
     Err_fs(i) = er;
 end
 

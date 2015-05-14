@@ -24,14 +24,18 @@ for m=1:features
     end
     for(k=1:neighbors)
         if(m>1)
-            learned_test_features_class = Nearest_Neighbor(X_new_train(:, 2:end)', X_new_train(:, 1)', X_new_test(:, 2:end)', k);
+            learned_test_features_class = Nearest_Neighbor(X_new_train(:, 2:end)', ...
+                X_new_train(:, 1)', X_new_test(:, 2:end)', k);
             true_test_class_features = X_new_test(:, 1);
-            accuracy_features(m,k) = sum(learned_test_features_class' == true_test_class_features)/length(true_test_class_features);
+            accuracy_features(m,k) = sum(learned_test_features_class' == true_test_class_features) ...
+                / length(true_test_class_features);
         end
         if(m<14)
-            learned_test_PCA_class = Nearest_Neighbor(X_pca_train(:, 2:end)', X_pca_train(:, 1)', X_pca_test(:, 2:end)', k);
+            learned_test_PCA_class = Nearest_Neighbor(X_pca_train(:, 2:end)', X_pca_train(:, 1)', ...
+                X_pca_test(:, 2:end)', k);
             true_test_class_PCA = X_pca_test(:, 1);
-            accuracy_PCA(m,k) = sum(learned_test_PCA_class' == true_test_class_PCA)/length(true_test_class_PCA);
+            accuracy_PCA(m,k) = sum(learned_test_PCA_class' == true_test_class_PCA) ...
+                / length(true_test_class_PCA);
         end
     end
 end
@@ -65,4 +69,4 @@ set(gcf, 'InvertHardCopy', 'off');
 clear X_pca_train X_pca X_new X_new_train X_new_test
 clear learned_test_PCA_class learned_test_features_class true_test_class_PCA true_test_class_features
 
-disp('Thank you for choosing KNN. Accuracy results may be seen in accuracy_PCA and accuracy_features')
+disp('Accuracy results may be seen in accuracy_PCA and accuracy_features')
